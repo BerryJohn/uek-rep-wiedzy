@@ -17,7 +17,7 @@ export interface Results {
 export interface Binding {
   category: Category;
   categoryLabel: CategoryLabel;
-  numberOfBooksPublishedIn2020: NumberOfBooksPublishedIn2020;
+  bookData: bookData; // xD
 }
 
 export interface Category {
@@ -31,7 +31,7 @@ export interface CategoryLabel {
   value: string;
 }
 
-export interface NumberOfBooksPublishedIn2020 {
+export interface bookData {
   type: string;
   datatype: string;
   value: string;

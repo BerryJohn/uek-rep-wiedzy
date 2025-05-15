@@ -1,15 +1,24 @@
+import { useState } from "react";
 import "./App.css";
 import { getQuery } from "./api/query";
 import TopBar from "./components/TopBar";
 import YearSlider from "./components/YearSlider";
-import { createPublishedBookQuery } from "./helpers/query";
+import {
+  createBookListForCategoryQuery,
+  createPublishedBookQuery,
+} from "./helpers/query";
 import { debounce } from "./helpers/utils";
+import type { Binding } from "./api/query.types";
 
 function App() {
-  const handleYearChange = debounce((year: number) => {
+  const [booksData, setBooksData] = useState<Binding[]>([]);
+
+  const handleYearChange = debounce(async (year: number) => {
     const query = createPublishedBookQuery(year);
 
-    getQuery(query);
+    const data = await getQuery(query);
+    console.log("data", data);
+    setBooksData(data);
   }, 1000);
 
   return (
@@ -31,8 +40,47 @@ function App() {
       >
         <div
           id="threejs-container"
-          style={{ backgroundColor: "black", width: "100%", flex: 1 }}
-        />
+          style={{
+            backgroundColor: "black",
+            width: "100%",
+            flex: 1,
+            maxHeight: 300,
+            overflow: "scroll",
+            display: "flex",
+            flexWrap: "wrap",
+          }}
+        >
+          {booksData.map((book) => (
+            <div
+              key={book.category.value}
+              style={{
+                border: "1px solid white",
+                padding: 10,
+                margin: 5,
+                borderRadius: 5,
+              }}
+            >
+              <div>{book.categoryLabel.value}</div>
+              <button
+                onClick={() => {
+                  const query = createBookListForCategoryQuery(
+                    book.category.value
+                  );
+                  getQuery(query).then((data) => {
+                    console.log(
+                      "Books in category",
+                      book.categoryLabel.value,
+                      data
+                    );
+                  });
+                }}
+              >
+                Show books
+              </button>
+            </div>
+          ))}
+        </div>
+
         <YearSlider handleYearChange={handleYearChange} />
       </div>
       <footer
