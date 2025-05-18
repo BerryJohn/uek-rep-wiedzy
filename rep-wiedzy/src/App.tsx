@@ -9,6 +9,7 @@ import {
 } from "./helpers/query";
 import { debounce } from "./helpers/utils";
 import type { Binding } from "./api/query.types";
+import { generateGraphData, Graph } from "./components/Graph";
 
 function App() {
   const [booksData, setBooksData] = useState<Binding[]>([]);
@@ -17,7 +18,6 @@ function App() {
     const query = createPublishedBookQuery(year);
 
     const data = await getQuery(query);
-    console.log("data", data);
     setBooksData(data);
   }, 1000);
 
@@ -41,16 +41,19 @@ function App() {
         <div
           id="threejs-container"
           style={{
-            backgroundColor: "black",
+            // backgroundColor: "black",
             width: "100%",
             flex: 1,
-            maxHeight: 300,
+            maxHeight: "calc(100vh - 56px - 100px)",
             overflow: "scroll",
             display: "flex",
             flexWrap: "wrap",
           }}
         >
-          {booksData.map((book) => (
+          {booksData.length > 0 && (
+            <Graph graphData={generateGraphData(booksData)} />
+          )}
+          {/* {booksData.map((book) => (
             <div
               key={book.category.value}
               style={{
@@ -78,7 +81,7 @@ function App() {
                 Show books
               </button>
             </div>
-          ))}
+          ))} */}
         </div>
 
         <YearSlider handleYearChange={handleYearChange} />
