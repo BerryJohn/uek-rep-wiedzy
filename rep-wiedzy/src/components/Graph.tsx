@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 import ForceGraph3D from "react-force-graph-3d";
 import * as THREE from "three";
 import type { Binding } from "../api/query.types";
@@ -58,10 +58,14 @@ export const generateGraphData = (books: Binding[]) => {
 //   ],
 // };
 
-export const Graph = ({ graphData }: any) => {
-  const rootId = 0;
+export const Graph = ({ books }: any) => {
+  const graphData = useMemo(() => generateGraphData(books), [books]);
 
-  console.log("graphData", graphData);
+  useEffect(() => {
+    setPrunedTree(getPrunedTree());
+  }, [graphData]);
+
+  const rootId = 0;
 
   const nodesById = useMemo(() => {
     const nodesById = Object.fromEntries(
@@ -111,7 +115,6 @@ export const Graph = ({ graphData }: any) => {
           new THREE.SpriteMaterial({
             map: new THREE.CanvasTexture(
               (() => {
-                console.log("title", title);
                 const canvas = document.createElement("canvas");
                 canvas.width = 512;
                 canvas.height = 64;

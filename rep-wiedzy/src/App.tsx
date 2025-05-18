@@ -50,9 +50,7 @@ function App() {
             flexWrap: "wrap",
           }}
         >
-          {booksData.length > 0 && (
-            <Graph graphData={generateGraphData(booksData)} />
-          )}
+          {booksData.length > 0 && <Graph books={booksData} />}
           {/* {booksData.map((book) => (
             <div
               key={book.category.value}
