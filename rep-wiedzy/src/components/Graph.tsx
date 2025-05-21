@@ -16,14 +16,16 @@ export function genRandomTree(N = 300, reverse = false) {
   };
 }
 
-// const graphData = genRandomTree(3, true);
-
 export const generateGraphData = (books: Binding[]) => {
   const nodes: any = [{ id: 0, title: "MOST POPULAR BOOKS" }];
   const links: any = [];
 
   for (let i = 1; i < books.length; i++) {
-    nodes.push({ id: i, title: books[i].categoryLabel.value });
+    nodes.push({
+      id: i,
+      title: books[i].categoryLabel.value,
+      uri: books[i].category.value,
+    });
   }
 
   for (let i = 1; i < books.length; i++) {
@@ -33,34 +35,22 @@ export const generateGraphData = (books: Binding[]) => {
   return { nodes, links };
 };
 
-// const graphData = generateGraphData();
+type GraphProps = {
+  publishedCategoriesData: Binding[];
+  handlePublishedBooksCategoryClick: (
+    dbPediaLink: string,
+    categoryName: string
+  ) => void;
+};
 
-// const graphData = {
-//   nodes: [
-//     {
-//       id: 0,
-//     },
-//     {
-//       id: 1,
-//     },
-//     {
-//       id: 2,
-//     },
-//   ],
-//   links: [
-//     {
-//       target: 1,
-//       source: 0,
-//     },
-//     {
-//       target: 2,
-//       source: 0,
-//     },
-//   ],
-// };
-
-export const Graph = ({ books }: any) => {
-  const graphData = useMemo(() => generateGraphData(books), [books]);
+export const Graph: React.FC<GraphProps> = ({
+  publishedCategoriesData,
+  handlePublishedBooksCategoryClick,
+}) => {
+  const graphData = useMemo(
+    () => generateGraphData(publishedCategoriesData),
+    [publishedCategoriesData]
+  );
 
   useEffect(() => {
     setPrunedTree(getPrunedTree());
@@ -103,13 +93,6 @@ export const Graph = ({ books }: any) => {
   }, [nodesById]);
 
   const [prunedTree, setPrunedTree] = useState(getPrunedTree());
-
-  const handleNodeClick = useCallback((node: any) => {
-    node.collapsed = !node.collapsed; // toggle collapse state
-    setPrunedTree(getPrunedTree());
-  }, []);
-
-  // Use a ref and state to track parent size
 
   const containerRef = useRef<HTMLDivElement>(null);
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
@@ -166,7 +149,9 @@ export const Graph = ({ books }: any) => {
         nodeColor={(node) =>
           !node.childLinks.length ? "green" : node.collapsed ? "red" : "yellow"
         }
-        onNodeClick={handleNodeClick}
+        onNodeClick={(node: any) => {
+          handlePublishedBooksCategoryClick(node.uri, node.title);
+        }}
       />
     </div>
   );

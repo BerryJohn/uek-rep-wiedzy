@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import "./App.css";
 import { getQuery } from "./api/query";
 import TopBar from "./components/TopBar";
@@ -8,30 +8,60 @@ import {
   createPublishedBookQuery,
 } from "./helpers/query";
 import { debounce } from "./helpers/utils";
-import type { Binding } from "./api/query.types";
-import { generateGraphData, Graph } from "./components/Graph";
+import type { Binding, Book } from "./api/query.types";
+import { Graph } from "./components/Graph";
+import BookListDialog from "./components/BookListDialog";
+import Loader from "./components/Loader";
+import Footer from "./components/Footer";
 
-function App() {
-  const [booksData, setBooksData] = useState<Binding[]>([]);
+const App = () => {
+  const [publishedBooksCategoryData, setPublishedBooksCategoryData] = useState<
+    Binding[]
+  >([]);
+  const selectedCategory = useRef<string | null>(null);
+
+  const [bookList, setBookList] = useState<Book[]>([]);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isLoadingCategories, setIsLoadingCategories] = useState(false);
+  const [isLoadingBooks, setIsLoadingBooks] = useState(false);
 
   const handleYearChange = debounce(async (year: number) => {
+    setIsLoadingCategories(true);
     const query = createPublishedBookQuery(year);
-
-    const data = await getQuery(query);
-
-    setBooksData(data);
+    const data = await getQuery<Binding>(query);
+    setPublishedBooksCategoryData(data);
+    setIsLoadingCategories(false);
   }, 1000);
+
+  const handlePublishedBooksCategoryClick = async (
+    category: string,
+    categoryName: string
+  ) => {
+    setIsLoadingBooks(true);
+    selectedCategory.current = categoryName;
+    const query = createBookListForCategoryQuery(category);
+    const data = await getQuery<Book>(query);
+    setBookList(data);
+    setIsDialogOpen(true);
+    setIsLoadingBooks(false);
+  };
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-gray-100 via-white to-blue-50">
       <TopBar />
       <main className="flex flex-col items-stretch justify-center flex-1 bg-white shadow-xl w-full border border-gray-200 px-6">
         <div className="text-center">
-          {booksData?.length > 0 ? (
+          {isLoadingCategories ? (
+            <Loader />
+          ) : publishedBooksCategoryData?.length > 0 ? (
             <div className="flex flex-col items-center justify-center w-full h-[70vh] border-0 rounded-lg shadow-lg bg-white/50 backdrop-blur-md border-gray-200">
               <div className="w-full h-full">
-                {/* Replace this with your actual Graph component */}
-                <Graph books={booksData} />
+                <Graph
+                  publishedCategoriesData={publishedBooksCategoryData}
+                  handlePublishedBooksCategoryClick={
+                    handlePublishedBooksCategoryClick
+                  }
+                />
               </div>
             </div>
           ) : (
@@ -55,13 +85,16 @@ function App() {
           </div>
         </div>
       </main>
-      <footer className="mt-auto py-6 bg-gradient-to-r from-gray-900 via-blue-900 to-gray-900 text-gray-100 text-center text-sm shadow-inner border-t border-blue-900/20">
-        &copy; 2025 UEK Kraków &mdash;{" "}
-        <span className="font-semibold">Jan Bąk</span>,{" "}
-        <span className="font-semibold">Jarosław Myjak</span>
-      </footer>
+      <BookListDialog
+        open={isDialogOpen}
+        onClose={() => setIsDialogOpen(false)}
+        title={`Books in "${selectedCategory.current}"`}
+        books={bookList}
+        loading={isLoadingBooks}
+      />
+      <Footer />
     </div>
   );
-}
+};
 
 export default App;
