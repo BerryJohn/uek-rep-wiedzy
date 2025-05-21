@@ -18,82 +18,47 @@ function App() {
     const query = createPublishedBookQuery(year);
 
     const data = await getQuery(query);
+
     setBooksData(data);
   }, 1000);
 
   return (
-    <div
-      style={{
-        height: "100vh",
-        backgroundColor: "green",
-        display: "flex",
-        flexDirection: "column",
-      }}
-    >
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-gray-100 via-white to-blue-50">
       <TopBar />
-      <div
-        style={{
-          flex: 1,
-          display: "flex",
-          flexDirection: "column",
-        }}
-      >
-        <div
-          id="threejs-container"
-          style={{
-            // backgroundColor: "black",
-            width: "100%",
-            flex: 1,
-            maxHeight: "calc(100vh - 56px - 100px)",
-            overflow: "scroll",
-            display: "flex",
-            flexWrap: "wrap",
-          }}
-        >
-          {booksData.length > 0 && <Graph books={booksData} />}
-          {/* {booksData.map((book) => (
-            <div
-              key={book.category.value}
-              style={{
-                border: "1px solid white",
-                padding: 10,
-                margin: 5,
-                borderRadius: 5,
-              }}
-            >
-              <div>{book.categoryLabel.value}</div>
-              <button
-                onClick={() => {
-                  const query = createBookListForCategoryQuery(
-                    book.category.value
-                  );
-                  getQuery(query).then((data) => {
-                    console.log(
-                      "Books in category",
-                      book.categoryLabel.value,
-                      data
-                    );
-                  });
-                }}
-              >
-                Show books
-              </button>
+      <main className="flex flex-col items-stretch justify-center flex-1 bg-white shadow-xl w-full border border-gray-200 px-6">
+        <div className="text-center">
+          {booksData?.length > 0 ? (
+            <div className="flex flex-col items-center justify-center w-full h-[70vh] border-0 rounded-lg shadow-lg bg-white/50 backdrop-blur-md border-gray-200">
+              <div className="w-full h-full">
+                {/* Replace this with your actual Graph component */}
+                <Graph books={booksData} />
+              </div>
             </div>
-          ))} */}
+          ) : (
+            <>
+              <h2 className="text-4xl font-black text-gray-800 mb-3 tracking-tight">
+                Welcome to <span className="text-blue-600">BookPol</span>
+              </h2>
+              <p className="text-gray-500 text-lg mb-6">
+                Your knowledge repository for books
+              </p>
+            </>
+          )}
+          <div className="flex flex-col items-center gap-1 w-full flex-1">
+            <label
+              htmlFor="year-slider"
+              className="font-semibold text-gray-700 text-lg "
+            >
+              Select publication year
+            </label>
+            <YearSlider handleYearChange={handleYearChange} />
+          </div>
         </div>
-
-        <YearSlider handleYearChange={handleYearChange} />
-      </div>
-      <footer
-        style={{
-          backgroundColor: "black",
-          color: "white",
-          textAlign: "center",
-          padding: 10,
-          fontSize: 14,
-        }}
-      >
-        &copy; 2025 UEK Kraków - Jan Bąk, Jarosław Myjak
+      </main>
+      <footer className="mt-auto py-6 bg-gradient-to-r from-gray-900 via-blue-900 to-gray-900 text-gray-100 text-center text-sm shadow-inner border-t border-blue-900/20">
+        &copy; 2025 UEK Kraków &mdash;{" "}
+        <span className="font-semibold">Jan Bąk</span>,{" "}
+        <span className="font-semibold">Jarosław Myjak</span>
       </footer>
     </div>
   );

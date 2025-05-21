@@ -8,7 +8,7 @@ const YearSlider = ({
 }: {
   handleYearChange(newYear: number): void;
 }) => {
-  const [year, setYear] = useState<number>(2024);
+  const [year, setYear] = useState<number>(2025);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newYear = parseInt(e.target.value, 10);
@@ -17,35 +17,23 @@ const YearSlider = ({
   };
 
   return (
-    <div
-      style={{
-        boxSizing: "border-box",
-        width: "100%",
-        margin: "40px auto",
-        marginTop: 0,
-        backgroundColor: "blue",
-      }}
-    >
-      <div style={{ marginBottom: 8, fontWeight: 600, fontSize: 18 }}>
-        Select Year: {year}
+    <div className="w-full">
+      <div className="flex items-center justify-between mb-2">
+        <span className="text-sm text-gray-500 font-medium">{MIN_YEAR}</span>
+        <span className="text-base font-semibold text-blue-700">
+          Year: {year}
+        </span>
+        <span className="text-sm text-gray-500 font-medium">{MAX_YEAR}</span>
       </div>
-      <div>
-        <input
-          type="range"
-          min={MIN_YEAR}
-          max={MAX_YEAR}
-          step={1}
-          value={year}
-          // defaultValue={year}
-          onChange={handleChange}
-          style={{ width: "100%" }}
-          // onMouseUp={(e) => {
-          //   // e.stopPropagation();
-          //   // e.preventDefault();
-          //   console.log("onMouseUp");
-          // }}
-        />
-      </div>
+      <input
+        type="range"
+        min={MIN_YEAR}
+        max={MAX_YEAR}
+        step={1}
+        value={year}
+        onChange={handleChange}
+        className="w-full h-2 bg-blue-100 rounded-lg appearance-none cursor-pointer accent-blue-600 transition"
+      />
     </div>
   );
 };
