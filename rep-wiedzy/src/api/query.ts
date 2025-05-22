@@ -1,9 +1,8 @@
 import axios from "axios";
-import type { Binding } from "./query.types";
 
 const endpoint = "https://dbpedia.org/sparql";
 
-export const getQuery = async (query: string): Promise<Binding[]> => {
+export const getQuery = async <T>(query: string): Promise<T[]> => {
   const uri = new URL(endpoint);
 
   uri.searchParams.append("default-graph-uri", "http://dbpedia.org");
@@ -18,5 +17,5 @@ export const getQuery = async (query: string): Promise<Binding[]> => {
       Accept: "application/sparql-results+json",
     },
   });
-  return res.data.results.bindings;
+  return res.data.results.bindings as T[];
 };

@@ -36,3 +36,21 @@ export interface bookData {
   datatype: string;
   value: string;
 }
+
+export type Book = {
+  book: Authors;
+  bookLabel: BookLabel;
+  authors: Authors;
+  thumbnail: Authors;
+};
+
+export type Authors = {
+  type: string;
+  value: string;
+};
+
+export type BookLabel = {
+  type: string;
+  "xml:lang": string;
+  value: string;
+};
