@@ -4,18 +4,6 @@ import * as THREE from "three";
 import type { Binding } from "../api/query.types";
 import { useRef } from "react";
 
-export function genRandomTree(N = 300, reverse = false) {
-  return {
-    nodes: [...Array(N).keys()].map((i) => ({ id: i })),
-    links: [...Array(N).keys()]
-      .filter((id) => id)
-      .map((id) => ({
-        [reverse ? "target" : "source"]: id,
-        [reverse ? "source" : "target"]: Math.round(Math.random() * (id - 1)),
-      })),
-  };
-}
-
 export const generateGraphData = (books: Binding[]) => {
   const nodes: any = [{ id: 0, title: "MOST POPULAR BOOKS" }];
   const links: any = [];
@@ -112,42 +100,88 @@ export const Graph: React.FC<GraphProps> = ({
   }, []);
 
   return (
-    <div ref={containerRef} style={{ width: "100%", height: "100%" }}>
+    <div
+      ref={containerRef}
+      style={{
+        width: "100%",
+        height: "100%",
+        border: "2px solid #D1D5DB", // Light gray border (Apple-like)
+        borderRadius: "18px",
+        background: "linear-gradient(135deg, #f5f6fa 0%, #e5e9f2 100%)", // Subtle Apple-like background
+        boxShadow: "0 4px 24px 0 rgba(60,60,67,0.08)",
+      }}
+    >
       <ForceGraph3D
         width={dimensions.width}
         height={dimensions.height}
-        nodeThreeObject={({ title }) => {
+        nodeThreeObject={({ title, collapsed, childLinks }) => {
+          const canvas = document.createElement("canvas");
+          const fontSize = Math.max(16, Math.min(32, dimensions.width / 30));
+          const padding = 24;
+          const ctx = canvas.getContext("2d")!;
+          ctx.font = `600 ${fontSize}px -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif`;
+          const textWidth = ctx.measureText(String(title)).width;
+          canvas.width = Math.ceil(textWidth + padding * 2);
+          canvas.height = Math.ceil(fontSize * 2 + padding);
+
+          // Apple-like node colors
+          if (!childLinks.length) {
+            ctx.fillStyle = "#34C759"; // Apple green
+          } else if (collapsed) {
+            ctx.fillStyle = "#FF3B30"; // Apple red
+          } else {
+            ctx.fillStyle = "#FFD60A"; // Apple yellow
+          }
+          // Rounded rectangle background
+          const radius = 16;
+          ctx.beginPath();
+          ctx.moveTo(radius, 0);
+          ctx.lineTo(canvas.width - radius, 0);
+          ctx.quadraticCurveTo(canvas.width, 0, canvas.width, radius);
+          ctx.lineTo(canvas.width, canvas.height - radius);
+          ctx.quadraticCurveTo(
+            canvas.width,
+            canvas.height,
+            canvas.width - radius,
+            canvas.height
+          );
+          ctx.lineTo(radius, canvas.height);
+          ctx.quadraticCurveTo(0, canvas.height, 0, canvas.height - radius);
+          ctx.lineTo(0, radius);
+          ctx.quadraticCurveTo(0, 0, radius, 0);
+          ctx.closePath();
+          ctx.fill();
+
+          // Border for node
+          ctx.lineWidth = 3;
+          ctx.strokeStyle = "#E5E5EA"; // Apple-like border color
+          ctx.stroke();
+
+          // Text styles
+          ctx.font = `600 ${fontSize}px -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif`;
+          ctx.fillStyle = "#1C1C1E"; // Apple dark text
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          ctx.fillText(String(title), canvas.width / 2, canvas.height / 2);
+
           const sprite = new THREE.Sprite(
             new THREE.SpriteMaterial({
-              map: new THREE.CanvasTexture(
-                (() => {
-                  const canvas = document.createElement("canvas");
-                  canvas.width = 512;
-                  canvas.height = 64;
-                  const ctx = canvas.getContext("2d")!;
-                  ctx.font = "24px Arial";
-                  ctx.fillStyle = "#fff";
-                  ctx.textAlign = "center";
-                  ctx.textBaseline = "middle";
-
-                  ctx.fillText(
-                    String(title),
-                    canvas.width / 2,
-                    canvas.height / 2
-                  );
-                  return canvas;
-                })()
-              ),
+              map: new THREE.CanvasTexture(canvas),
               transparent: true,
             })
           );
-          sprite.scale.set(8 * 3, 2 * 3, 1 * 3);
+          sprite.scale.set(canvas.width / 16, canvas.height / 16, 1);
           return sprite;
         }}
         graphData={prunedTree}
         linkDirectionalParticles={2}
-        nodeColor={(node) =>
-          !node.childLinks.length ? "green" : node.collapsed ? "red" : "yellow"
+        nodeColor={
+          (node) =>
+            !node.childLinks.length
+              ? "#34C759" // Apple green
+              : node.collapsed
+              ? "#FF3B30" // Apple red
+              : "#FFD60A" // Apple yellow
         }
         onNodeClick={(node: any) => {
           handlePublishedBooksCategoryClick(node.uri, node.title);
