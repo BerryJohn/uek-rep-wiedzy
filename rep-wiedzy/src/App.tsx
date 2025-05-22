@@ -88,7 +88,7 @@ const App = () => {
       <BookListDialog
         open={isDialogOpen}
         onClose={() => setIsDialogOpen(false)}
-        title={`Books in "${selectedCategory.current}"`}
+        title={`Books in "${selectedCategory.current ?? "Unknown Category"}"`}
         books={bookList}
         loading={isLoadingBooks}
       />
