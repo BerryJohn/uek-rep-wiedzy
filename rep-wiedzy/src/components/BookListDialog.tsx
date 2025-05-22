@@ -38,7 +38,7 @@ const BookListDialog: React.FC<BookListDialogProps> = ({
           <ul className="divide-y divide-gray-200">
             {books?.map((book, id) => (
               <li
-                key={`book-${id}-${book.bookLabel.type}`}
+                key={`book-${id}-${book.bookLabel.value}`}
                 className="flex items-center gap-4 py-3"
               >
                 <img
